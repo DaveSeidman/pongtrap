@@ -3,6 +3,11 @@
 Interactive chain-reaction simulator: a glass tank filled with mousetraps and ping pong balls.
 Click any trap to launch its ball, then watch collisions trigger other traps.
 
+## References
+https://www.youtube.com/watch?v=9e8E0T8hfco
+https://www.youtube.com/watch?v=XIvHd76EdQ4
+
+
 ## Run
 
 ```bash
