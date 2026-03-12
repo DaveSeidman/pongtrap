@@ -13,15 +13,9 @@ import Tank from './Tank';
 import Trap from './Trap';
 import { CHAIN_REACTION, GRID, TANK_HEIGHT, TRAP, WORLD } from './constants';
 
-function buildTrapLayout(width, depth) {
-  const usableX = Math.max(0, width - GRID.edgePadding * 2);
-  const usableZ = Math.max(0, depth - GRID.edgePadding * 2);
-
-  const cols = Math.max(1, Math.floor(usableX / GRID.spacing));
-  const rows = Math.max(1, Math.floor(usableZ / GRID.spacing));
-
-  const offsetX = ((cols - 1) * GRID.spacing) / 2;
-  const offsetZ = ((rows - 1) * GRID.spacing) / 2;
+function buildTrapLayout(rows, cols, spacing) {
+  const offsetX = ((cols - 1) * spacing) / 2;
+  const offsetZ = ((rows - 1) * spacing) / 2;
 
   const traps = [];
   let id = 0;
@@ -30,8 +24,8 @@ function buildTrapLayout(width, depth) {
     for (let col = 0; col < cols; col += 1) {
       traps.push({
         id,
-        x: col * GRID.spacing - offsetX,
-        z: row * GRID.spacing - offsetZ,
+        x: col * spacing - offsetX,
+        z: row * spacing - offsetZ,
       });
       id += 1;
     }
@@ -40,9 +34,20 @@ function buildTrapLayout(width, depth) {
   return traps;
 }
 
+function getTankSize(rows, cols, spacing) {
+  const [trapW] = TRAP.size;
+  const [, , trapD] = TRAP.size;
+
+  const width = Math.max(trapW + GRID.edgePadding * 2, (cols - 1) * spacing + trapW + GRID.edgePadding * 2);
+  const depth = Math.max(trapD + GRID.edgePadding * 2, (rows - 1) * spacing + trapD + GRID.edgePadding * 2);
+
+  return { width, depth };
+}
+
 function World({
-  width,
-  depth,
+  rows,
+  cols,
+  density,
   triggeredMap,
   triggerCounts,
   onTrigger,
@@ -50,7 +55,9 @@ function World({
   postProcessing = true,
   showStats = false,
 }) {
-  const traps = useMemo(() => buildTrapLayout(width, depth), [width, depth]);
+  const spacing = GRID.baseSpacing / density;
+  const traps = useMemo(() => buildTrapLayout(rows, cols, spacing), [rows, cols, spacing]);
+  const { width, depth } = useMemo(() => getTankSize(rows, cols, spacing), [rows, cols, spacing]);
   const ballBodiesRef = useRef(new Map());
 
   const registerBallBody = useCallback((id, body) => {
@@ -62,9 +69,6 @@ function World({
   }, []);
 
   useFrame(() => {
-    // Lightweight chain-reaction detector:
-    // If a moving ball passes through an untriggered trap's XZ trigger radius near trap height,
-    // trigger that trap (which launches its own ball via an impulse).
     traps.forEach((trap) => {
       if (triggeredMap[trap.id]) return;
 
@@ -91,7 +95,6 @@ function World({
   return (
     <>
       <color attach="background" args={['#07090d']} />
-      {/* fog removed per request */}
 
       <ambientLight intensity={0.25} />
       <directionalLight
@@ -137,7 +140,7 @@ function World({
         makeDefault
         target={[0, 1.6, 0]}
         minDistance={8}
-        maxDistance={45}
+        maxDistance={65}
         maxPolarAngle={Math.PI * 0.495}
       />
 
@@ -148,13 +151,15 @@ function World({
 }
 
 export default function Scene(props) {
-  const { width, depth } = props;
+  const { rows, cols, density } = props;
+  const spacing = GRID.baseSpacing / density;
+  const { width, depth } = getTankSize(rows, cols, spacing);
 
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: [width * 0.55, TANK_HEIGHT * 0.7, depth * 0.55], fov: 48, near: 0.1, far: 120 }}
+      camera={{ position: [width * 0.6, TANK_HEIGHT * 0.7, depth * 0.6], fov: 48, near: 0.1, far: 180 }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
     >
       <World {...props} />

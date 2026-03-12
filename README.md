@@ -20,8 +20,8 @@ npm run preview
 ## Architecture
 
 - `src/App.jsx`
-  - Main app shell + control panel
-  - Tank X/Y size controls
+  - Main app shell + Leva control panel
+  - Rows/cols + density + launch controls
   - Simulation state (`triggeredMap`, `triggerCounts`)
 - `src/scene/Scene.jsx`
   - Canvas setup, camera, controls, lighting, shadows, optional post FX
@@ -43,8 +43,8 @@ In `src/scene/constants.js`:
 
 - `LAUNCH.upwardImpulse` / `LAUNCH.lateralImpulse` / `LAUNCH.randomLateralJitter`
   - Controls launch arc and spread
-- `GRID.spacing` / `GRID.edgePadding`
-  - Density and margins of trap layout
+- `GRID.baseSpacing` / `GRID.edgePadding`
+  - Base trap spacing and margins (actual spacing is scaled by the Leva `density` slider)
 - `CHAIN_REACTION.minSpeedToTrigger`
   - Ball speed threshold required to set off an untriggered trap
 - `CHAIN_REACTION.trapTriggerRadius`

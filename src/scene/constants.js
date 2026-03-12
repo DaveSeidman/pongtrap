@@ -2,7 +2,8 @@ export const TANK_HEIGHT = 10;
 
 export const WORLD = {
   gravity: [0, -9.81, 0],
-  timeStep: 1 / 60,
+  // smaller fixed step improves collision robustness (less tunneling)
+  timeStep: 1 / 120,
 };
 
 export const TANK_VISUAL = {
@@ -24,7 +25,7 @@ export const TRAP = {
 };
 
 export const GRID = {
-  spacing: 1.35,
+  baseSpacing: 1.35,
   edgePadding: 0.8,
 };
 

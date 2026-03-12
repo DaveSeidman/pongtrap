@@ -50,6 +50,7 @@ export default function Ball({ id, position, triggerCount, registerBody, launchS
       linearDamping={0.06}
       angularDamping={0.05}
       canSleep={false}
+      ccd
     >
       <mesh castShadow receiveShadow>
         <sphereGeometry args={[TRAP.ballRadius, 24, 24]} />

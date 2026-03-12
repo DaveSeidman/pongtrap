@@ -18,9 +18,16 @@ export default function App() {
     setTriggerCounts({});
   };
 
-  const { width, depth, launchScale, postProcessing, showStats } = useControls('PongTrap', {
-    width: { value: 18, min: 8, max: 36, step: 1, label: 'X (width)' },
-    depth: { value: 18, min: 8, max: 36, step: 1, label: 'Y (depth)' },
+  const { rows, cols, density, launchScale, postProcessing, showStats } = useControls('PongTrap', {
+    rows: { value: 12, min: 4, max: 30, step: 1, label: 'rows' },
+    cols: { value: 12, min: 4, max: 30, step: 1, label: 'cols' },
+    density: {
+      value: 1,
+      min: 0.5,
+      max: 2,
+      step: 0.05,
+      label: 'density',
+    },
     launchScale: {
       value: 0.1,
       min: 0.02,
@@ -45,12 +52,16 @@ export default function App() {
       <div className="hud">
         <strong>PongTrap Lab</strong>
         <span>Height: {TANK_HEIGHT}</span>
+        <span>
+          Grid: {rows} × {cols}
+        </span>
         <span>Triggered: {triggeredTotal}</span>
       </div>
 
       <Scene
-        width={width}
-        depth={depth}
+        rows={rows}
+        cols={cols}
+        density={density}
         launchScale={launchScale}
         triggeredMap={triggeredMap}
         triggerCounts={triggerCounts}
