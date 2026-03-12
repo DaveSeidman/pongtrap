@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Leva, button, useControls } from 'leva';
 import Scene from './scene/Scene';
 import { TANK_HEIGHT } from './scene/constants';
@@ -7,6 +7,7 @@ import './App.css';
 export default function App() {
   const [triggeredMap, setTriggeredMap] = useState({});
   const [triggerCounts, setTriggerCounts] = useState({});
+  const [simVersion, setSimVersion] = useState(0);
 
   const triggeredTotal = useMemo(
     () => Object.values(triggeredMap).filter(Boolean).length,
@@ -16,6 +17,8 @@ export default function App() {
   const reset = () => {
     setTriggeredMap({});
     setTriggerCounts({});
+    // Force full remount of physics world so all rigid-body velocities are cleared.
+    setSimVersion((v) => v + 1);
   };
 
   const { rows, cols, density, launchScale, postProcessing, showStats } = useControls('PongTrap', {
@@ -40,6 +43,12 @@ export default function App() {
     reset: button(reset),
   });
 
+  useEffect(() => {
+    // Changing grid topology should start from a clean, stable state.
+    reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, cols, density]);
+
   const triggerTrap = (id) => {
     setTriggeredMap((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
     setTriggerCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
@@ -59,6 +68,7 @@ export default function App() {
       </div>
 
       <Scene
+        key={simVersion}
         rows={rows}
         cols={cols}
         density={density}

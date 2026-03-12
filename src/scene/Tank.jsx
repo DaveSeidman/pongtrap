@@ -7,6 +7,7 @@ export default function Tank({ width, depth }) {
   const halfD = depth / 2;
   const halfH = TANK_HEIGHT / 2;
   const t = TANK_VISUAL.wallThickness;
+  const safetyT = 0.35;
 
   const wallMaterial = useMemo(
     () => ({
@@ -34,6 +35,33 @@ export default function Tank({ width, depth }) {
       <CuboidCollider args={[t / 2, halfH, halfD]} position={[halfW, halfH, 0]} restitution={0.78} />
       <CuboidCollider args={[halfW, halfH, t / 2]} position={[0, halfH, -halfD]} restitution={0.78} />
       <CuboidCollider args={[halfW, halfH, t / 2]} position={[0, halfH, halfD]} restitution={0.78} />
+
+      {/* Secondary containment shell to catch rare high-speed tunneling cases. */}
+      <CuboidCollider
+        args={[halfW + safetyT, safetyT / 2, halfD + safetyT]}
+        position={[0, TANK_HEIGHT + safetyT, 0]}
+        restitution={0.75}
+      />
+      <CuboidCollider
+        args={[safetyT / 2, halfH + safetyT, halfD + safetyT]}
+        position={[-halfW - safetyT, halfH, 0]}
+        restitution={0.75}
+      />
+      <CuboidCollider
+        args={[safetyT / 2, halfH + safetyT, halfD + safetyT]}
+        position={[halfW + safetyT, halfH, 0]}
+        restitution={0.75}
+      />
+      <CuboidCollider
+        args={[halfW + safetyT, halfH + safetyT, safetyT / 2]}
+        position={[0, halfH, -halfD - safetyT]}
+        restitution={0.75}
+      />
+      <CuboidCollider
+        args={[halfW + safetyT, halfH + safetyT, safetyT / 2]}
+        position={[0, halfH, halfD + safetyT]}
+        restitution={0.75}
+      />
 
       {/* Visual floor */}
       <mesh receiveShadow position={[0, 0, 0]}>
