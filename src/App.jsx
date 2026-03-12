@@ -68,7 +68,7 @@ export default function App() {
       </div>
 
       <Scene
-        key={simVersion}
+        simVersion={simVersion}
         rows={rows}
         cols={cols}
         density={density}

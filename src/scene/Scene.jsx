@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
   ContactShadows,
   Environment,
@@ -9,6 +9,7 @@ import {
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { Physics } from '@react-three/rapier';
 import { useCallback, useMemo, useRef } from 'react';
+import * as THREE from 'three';
 import Tank from './Tank';
 import Trap from './Trap';
 import { CHAIN_REACTION, GRID, TANK_HEIGHT, TRAP, WORLD } from './constants';
@@ -44,7 +45,31 @@ function getTankSize(rows, cols, spacing) {
   return { width, depth };
 }
 
+function CameraRig({ width, depth, controlsRef }) {
+  const { camera } = useThree();
+  const desired = useMemo(() => {
+    const maxSize = Math.max(width, depth);
+    return {
+      position: new THREE.Vector3(maxSize * 1.2, TANK_HEIGHT * 0.95, maxSize * 1.2),
+      target: new THREE.Vector3(0, 1.6, 0),
+    };
+  }, [width, depth]);
+
+  useFrame((_, dt) => {
+    const alpha = 1 - Math.exp(-dt * 4.5);
+    camera.position.lerp(desired.position, alpha);
+
+    if (controlsRef.current) {
+      controlsRef.current.target.lerp(desired.target, alpha);
+      controlsRef.current.update();
+    }
+  });
+
+  return null;
+}
+
 function World({
+  simVersion,
   rows,
   cols,
   density,
@@ -59,6 +84,7 @@ function World({
   const traps = useMemo(() => buildTrapLayout(rows, cols, spacing), [rows, cols, spacing]);
   const { width, depth } = useMemo(() => getTankSize(rows, cols, spacing), [rows, cols, spacing]);
   const ballBodiesRef = useRef(new Map());
+  const controlsRef = useRef(null);
 
   const registerBallBody = useCallback((id, body) => {
     if (!body) {
@@ -110,7 +136,9 @@ function World({
         shadow-camera-bottom={-15}
       />
 
-      <Physics gravity={WORLD.gravity} timeStep={WORLD.timeStep}>
+      <CameraRig width={width} depth={depth} controlsRef={controlsRef} />
+
+      <Physics key={simVersion} gravity={WORLD.gravity} timeStep={WORLD.timeStep}>
         <Tank width={width} depth={depth} />
 
         {traps.map((trap) => (
@@ -137,6 +165,7 @@ function World({
       )}
 
       <OrbitControls
+        ref={controlsRef}
         makeDefault
         target={[0, 1.6, 0]}
         enableZoom={false}
@@ -154,12 +183,11 @@ export default function Scene(props) {
   const { rows, cols, density } = props;
   const spacing = GRID.baseSpacing / density;
   const { width, depth } = getTankSize(rows, cols, spacing);
-
   const maxSize = Math.max(width, depth);
 
   return (
     <Canvas
-      shadows
+      shadows={{ type: THREE.PCFShadowMap }}
       dpr={[1, 2]}
       camera={{
         position: [maxSize * 1.2, TANK_HEIGHT * 0.95, maxSize * 1.2],
