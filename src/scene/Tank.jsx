@@ -19,22 +19,24 @@ export default function Tank({ width, depth }) {
 
   const transmissionProps = useMemo(
     () => ({
-      // Kept intentionally modest for performance.
+      // Low-cost transmission profile with a bit more "glassy" feel.
+      transmissionSampler: true,
       samples: 2,
       resolution: 128,
-      thickness: 0.18,
-      roughness: 0.16,
-      ior: 1.08,
-      chromaticAberration: 0,
+      thickness: 0.24,
+      roughness: 0.07,
+      ior: 1.15,
+      chromaticAberration: 0.03,
       distortion: 0,
       temporalDistortion: 0,
       anisotropy: 0,
-      clearcoat: 0.2,
-      attenuationDistance: 4,
+      clearcoat: 0.4,
+      envMapIntensity: 1.55,
+      attenuationDistance: 4.5,
       attenuationColor: '#d7eeff',
       backside: false,
       transparent: true,
-      opacity: 0.12,
+      opacity: 0.16,
     }),
     [],
   );

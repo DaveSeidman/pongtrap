@@ -173,7 +173,7 @@ function World({
       </Physics>
 
       <ContactShadows position={[0, 0.01, 0]} opacity={0.45} scale={Math.max(width, depth)} blur={1.5} />
-      <Environment preset="city" />
+      <Environment preset="city" environmentIntensity={1.35} />
 
       {postProcessing && (
         <EffectComposer>
