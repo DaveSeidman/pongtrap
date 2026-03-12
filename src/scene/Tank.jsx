@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { CuboidCollider } from '@react-three/rapier';
+import { MeshTransmissionMaterial, useTexture } from '@react-three/drei';
+import * as THREE from 'three';
 import { TANK_HEIGHT, TANK_VISUAL } from './constants';
 
 export default function Tank({ width, depth }) {
@@ -9,14 +11,30 @@ export default function Tank({ width, depth }) {
   const t = TANK_VISUAL.wallThickness;
   const safetyT = 0.35;
 
-  const wallMaterial = useMemo(
+  const woodTexture = useTexture('/wood-grain.svg');
+  woodTexture.wrapS = THREE.RepeatWrapping;
+  woodTexture.wrapT = THREE.RepeatWrapping;
+  woodTexture.repeat.set(Math.max(2, width * 0.35), Math.max(2, depth * 0.35));
+  woodTexture.anisotropy = 4;
+
+  const transmissionProps = useMemo(
     () => ({
-      color: TANK_VISUAL.glassColor,
+      // Kept intentionally modest for performance.
+      samples: 2,
+      resolution: 128,
+      thickness: 0.18,
+      roughness: 0.16,
+      ior: 1.08,
+      chromaticAberration: 0,
+      distortion: 0,
+      temporalDistortion: 0,
+      anisotropy: 0,
+      clearcoat: 0.2,
+      attenuationDistance: 4,
+      attenuationColor: '#d7eeff',
+      backside: false,
       transparent: true,
-      opacity: TANK_VISUAL.glassOpacity,
-      roughness: 0.03,
-      metalness: 0.1,
-      transmission: 0.9,
+      opacity: 0.12,
     }),
     [],
   );
@@ -63,33 +81,33 @@ export default function Tank({ width, depth }) {
         restitution={0.75}
       />
 
-      {/* Visual floor */}
+      {/* Visual floor (wood texture) */}
       <mesh receiveShadow position={[0, 0, 0]}>
         <boxGeometry args={[width, t, depth]} />
-        <meshStandardMaterial color={TANK_VISUAL.floorColor} roughness={0.9} metalness={0.08} />
+        <meshStandardMaterial map={woodTexture} color="#89633d" roughness={0.86} metalness={0.04} />
       </mesh>
 
       {/* Visual walls + ceiling */}
       <mesh position={[0, TANK_HEIGHT, 0]}>
         <boxGeometry args={[width, t, depth]} />
-        <meshPhysicalMaterial {...wallMaterial} />
+        <MeshTransmissionMaterial {...transmissionProps} />
       </mesh>
 
       <mesh position={[-halfW, halfH, 0]}>
         <boxGeometry args={[t, TANK_HEIGHT, depth]} />
-        <meshPhysicalMaterial {...wallMaterial} />
+        <MeshTransmissionMaterial {...transmissionProps} />
       </mesh>
       <mesh position={[halfW, halfH, 0]}>
         <boxGeometry args={[t, TANK_HEIGHT, depth]} />
-        <meshPhysicalMaterial {...wallMaterial} />
+        <MeshTransmissionMaterial {...transmissionProps} />
       </mesh>
       <mesh position={[0, halfH, -halfD]}>
         <boxGeometry args={[width, TANK_HEIGHT, t]} />
-        <meshPhysicalMaterial {...wallMaterial} />
+        <MeshTransmissionMaterial {...transmissionProps} />
       </mesh>
       <mesh position={[0, halfH, halfD]}>
         <boxGeometry args={[width, TANK_HEIGHT, t]} />
-        <meshPhysicalMaterial {...wallMaterial} />
+        <MeshTransmissionMaterial {...transmissionProps} />
       </mesh>
     </group>
   );
