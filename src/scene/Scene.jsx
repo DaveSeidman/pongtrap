@@ -139,8 +139,8 @@ function World({
       <OrbitControls
         makeDefault
         target={[0, 1.6, 0]}
-        minDistance={8}
-        maxDistance={65}
+        enableZoom={false}
+        enablePan={false}
         maxPolarAngle={Math.PI * 0.495}
       />
 
@@ -155,11 +155,18 @@ export default function Scene(props) {
   const spacing = GRID.baseSpacing / density;
   const { width, depth } = getTankSize(rows, cols, spacing);
 
+  const maxSize = Math.max(width, depth);
+
   return (
     <Canvas
       shadows
       dpr={[1, 2]}
-      camera={{ position: [width * 0.6, TANK_HEIGHT * 0.7, depth * 0.6], fov: 48, near: 0.1, far: 180 }}
+      camera={{
+        position: [maxSize * 1.2, TANK_HEIGHT * 0.95, maxSize * 1.2],
+        fov: 48,
+        near: 0.1,
+        far: 220,
+      }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
     >
       <World {...props} />
