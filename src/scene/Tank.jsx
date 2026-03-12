@@ -10,6 +10,8 @@ export default function Tank({ width, depth }) {
   const halfH = TANK_HEIGHT / 2;
   const t = TANK_VISUAL.wallThickness;
   const safetyT = 0.35;
+  const baseOverhang = 1;
+  const baseThickness = 0.8;
 
   const woodTexture = useTexture('/wood-grain.svg');
   woodTexture.wrapS = THREE.RepeatWrapping;
@@ -44,7 +46,12 @@ export default function Tank({ width, depth }) {
   return (
     <group>
       {/* Physical boundaries */}
-      <CuboidCollider args={[halfW, t / 2, halfD]} position={[0, 0, 0]} friction={0.95} restitution={0.2} />
+      <CuboidCollider
+        args={[halfW + baseOverhang, baseThickness / 2, halfD + baseOverhang]}
+        position={[0, -baseThickness / 2, 0]}
+        friction={0.95}
+        restitution={0.2}
+      />
       <CuboidCollider
         args={[halfW, t / 2, halfD]}
         position={[0, TANK_HEIGHT, 0]}
@@ -84,8 +91,8 @@ export default function Tank({ width, depth }) {
       />
 
       {/* Visual floor (wood texture) */}
-      <mesh receiveShadow position={[0, 0, 0]}>
-        <boxGeometry args={[width, t, depth]} />
+      <mesh receiveShadow position={[0, -baseThickness / 2, 0]}>
+        <boxGeometry args={[width + baseOverhang * 2, baseThickness, depth + baseOverhang * 2]} />
         <meshStandardMaterial map={woodTexture} color="#89633d" roughness={0.86} metalness={0.04} />
       </mesh>
 
