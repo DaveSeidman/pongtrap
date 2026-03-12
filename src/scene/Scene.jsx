@@ -170,7 +170,8 @@ function World({
         target={[0, 1.6, 0]}
         enableZoom={false}
         enablePan={false}
-        maxPolarAngle={Math.PI * 0.495}
+        minPolarAngle={0}
+        maxPolarAngle={Math.PI}
       />
 
       {showStats && <Stats />}
