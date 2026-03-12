@@ -8,7 +8,7 @@ import {
 } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import { Physics } from '@react-three/rapier';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import Tank from './Tank';
 import Trap from './Trap';
@@ -45,7 +45,7 @@ function getTankSize(rows, cols, spacing) {
   return { width, depth };
 }
 
-function CameraRig({ width, depth, controlsRef }) {
+function CameraRig({ width, depth, controlsRef, layoutKey }) {
   const { camera } = useThree();
   const desired = useMemo(() => {
     const maxSize = Math.max(width, depth);
@@ -55,13 +55,29 @@ function CameraRig({ width, depth, controlsRef }) {
     };
   }, [width, depth]);
 
+  const tweenActiveRef = useRef(false);
+
+  useEffect(() => {
+    // Only re-frame camera when the layout topology changes.
+    tweenActiveRef.current = true;
+  }, [layoutKey]);
+
   useFrame((_, dt) => {
+    if (!tweenActiveRef.current) return;
+
     const alpha = 1 - Math.exp(-dt * 4.5);
     camera.position.lerp(desired.position, alpha);
 
     if (controlsRef.current) {
       controlsRef.current.target.lerp(desired.target, alpha);
       controlsRef.current.update();
+    }
+
+    const done = camera.position.distanceTo(desired.position) < 0.02;
+    if (done && controlsRef.current) {
+      controlsRef.current.target.copy(desired.target);
+      controlsRef.current.update();
+      tweenActiveRef.current = false;
     }
   });
 
@@ -81,6 +97,7 @@ function World({
   showStats = false,
 }) {
   const spacing = GRID.baseSpacing / density;
+  const layoutKey = `${rows}:${cols}:${density}`;
   const traps = useMemo(() => buildTrapLayout(rows, cols, spacing), [rows, cols, spacing]);
   const { width, depth } = useMemo(() => getTankSize(rows, cols, spacing), [rows, cols, spacing]);
   const ballBodiesRef = useRef(new Map());
@@ -136,7 +153,7 @@ function World({
         shadow-camera-bottom={-15}
       />
 
-      <CameraRig width={width} depth={depth} controlsRef={controlsRef} />
+      <CameraRig width={width} depth={depth} controlsRef={controlsRef} layoutKey={layoutKey} />
 
       <Physics key={simVersion} gravity={WORLD.gravity} timeStep={WORLD.timeStep}>
         <Tank width={width} depth={depth} />
