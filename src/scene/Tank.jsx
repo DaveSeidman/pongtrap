@@ -3,6 +3,7 @@ import { CuboidCollider } from '@react-three/rapier';
 import { MeshTransmissionMaterial, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { TANK_HEIGHT, TANK_VISUAL } from './constants';
+import { clearcoatRoughness } from 'three/tsl';
 
 export default function Tank({ width, depth }) {
   const halfW = width / 2;
@@ -23,20 +24,21 @@ export default function Tank({ width, depth }) {
     () => ({
       // Low-cost transmission profile with a bit more "glassy" feel.
       transmissionSampler: true,
-      samples: 2,
+      samples: 4,
       resolution: 128,
-      thickness: 0.24,
+      thickness: 0.14,
       roughness: 0.07,
       ior: 1.15,
-      chromaticAberration: 0.03,
+      chromaticAberration: 0.3,
       distortion: 0.18,
       temporalDistortion: 0.04,
       anisotropy: 0,
-      clearcoat: 0.4,
+      clearcoat: 0.5,
+      clearcoatRoughness: 0.5,
       envMapIntensity: 1.55,
       attenuationDistance: 4.5,
       attenuationColor: '#d7eeff',
-      backside: false,
+      backside: true,
       transparent: true,
       opacity: 0.16,
     }),
