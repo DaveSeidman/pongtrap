@@ -50,7 +50,7 @@ function CameraRig({ width, depth, controlsRef, layoutKey }) {
   const desired = useMemo(() => {
     const maxSize = Math.max(width, depth);
     return {
-      position: new THREE.Vector3(maxSize * 1.2, TANK_HEIGHT * 0.95, maxSize * 1.2),
+      position: new THREE.Vector3(maxSize * 1.2, Math.max(6.5, maxSize * 0.7), maxSize * 1.2),
       target: new THREE.Vector3(0, 1.6, 0),
     };
   }, [width, depth]);
@@ -208,7 +208,7 @@ export default function Scene(props) {
       shadows={{ type: THREE.PCFShadowMap }}
       dpr={[1, 2]}
       camera={{
-        position: [maxSize * 1.2, TANK_HEIGHT * 0.95, maxSize * 1.2],
+        position: [maxSize * 1.2, Math.max(6.5, maxSize * 0.7), maxSize * 1.2],
         fov: 48,
         near: 0.1,
         far: 220,
