@@ -2,7 +2,15 @@ import { CuboidCollider, RigidBody } from '@react-three/rapier';
 import { TRAP } from './constants';
 import Ball from './Ball';
 
-export default function Trap({ id, position, triggered, triggerCount, onTrigger, registerBallBody }) {
+export default function Trap({
+  id,
+  position,
+  triggered,
+  triggerCount,
+  onTrigger,
+  registerBallBody,
+  launchScale,
+}) {
   const [x, z] = position;
   const [trapW, trapH, trapD] = TRAP.size;
 
@@ -45,6 +53,7 @@ export default function Trap({ id, position, triggered, triggerCount, onTrigger,
         position={[0, trapH + TRAP.ballRadius + 0.02, 0]}
         triggerCount={triggerCount}
         registerBody={registerBallBody}
+        launchScale={launchScale}
       />
     </group>
   );

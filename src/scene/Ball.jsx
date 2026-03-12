@@ -7,7 +7,7 @@ function pseudoRandom(seed) {
   return x - Math.floor(x);
 }
 
-export default function Ball({ id, position, triggerCount, registerBody }) {
+export default function Ball({ id, position, triggerCount, registerBody, launchScale = 1 }) {
   const bodyRef = useRef(null);
   const launchedCountRef = useRef(0);
 
@@ -24,14 +24,20 @@ export default function Ball({ id, position, triggerCount, registerBody }) {
     const angle = r1 * Math.PI * 2;
 
     const impulse = {
-      x: Math.cos(angle) * (LAUNCH.lateralImpulse + (r2 - 0.5) * LAUNCH.randomLateralJitter),
-      y: LAUNCH.upwardImpulse,
-      z: Math.sin(angle) * (LAUNCH.lateralImpulse + (0.5 - r2) * LAUNCH.randomLateralJitter),
+      x:
+        Math.cos(angle) *
+        (LAUNCH.lateralImpulse + (r2 - 0.5) * LAUNCH.randomLateralJitter) *
+        launchScale,
+      y: LAUNCH.upwardImpulse * launchScale,
+      z:
+        Math.sin(angle) *
+        (LAUNCH.lateralImpulse + (0.5 - r2) * LAUNCH.randomLateralJitter) *
+        launchScale,
     };
 
     bodyRef.current.applyImpulse(impulse, true);
     launchedCountRef.current = triggerCount;
-  }, [id, triggerCount]);
+  }, [id, triggerCount, launchScale]);
 
   return (
     <RigidBody

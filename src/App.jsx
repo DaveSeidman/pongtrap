@@ -1,16 +1,10 @@
 import { useMemo, useState } from 'react';
+import { Leva, button, useControls } from 'leva';
 import Scene from './scene/Scene';
 import { TANK_HEIGHT } from './scene/constants';
 import './App.css';
 
-const MIN_SIZE = 8;
-const MAX_SIZE = 36;
-
 export default function App() {
-  const [width, setWidth] = useState(18);
-  const [depth, setDepth] = useState(18);
-  const [postProcessing, setPostProcessing] = useState(true);
-  const [showStats, setShowStats] = useState(false);
   const [triggeredMap, setTriggeredMap] = useState({});
   const [triggerCounts, setTriggerCounts] = useState({});
 
@@ -19,82 +13,51 @@ export default function App() {
     [triggeredMap],
   );
 
-  const triggerTrap = (id) => {
-    setTriggeredMap((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
-    setTriggerCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
-  };
-
   const reset = () => {
     setTriggeredMap({});
     setTriggerCounts({});
   };
 
+  const { width, depth, launchScale, postProcessing, showStats } = useControls('PongTrap', {
+    width: { value: 18, min: 8, max: 36, step: 1, label: 'X (width)' },
+    depth: { value: 18, min: 8, max: 36, step: 1, label: 'Y (depth)' },
+    launchScale: {
+      value: 0.1,
+      min: 0.02,
+      max: 0.3,
+      step: 0.01,
+      label: 'launch velocity',
+    },
+    postProcessing: { value: true, label: 'bloom' },
+    showStats: { value: false, label: 'fps stats' },
+    reset: button(reset),
+  });
+
+  const triggerTrap = (id) => {
+    setTriggeredMap((prev) => (prev[id] ? prev : { ...prev, [id]: true }));
+    setTriggerCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
+  };
+
   return (
     <div className="app">
-      <aside className="control-panel">
-        <h1>PongTrap Lab</h1>
-        <p>Set tank size, click any trap, and enjoy the chain reaction.</p>
+      <Leva collapsed={false} oneLineLabels hideCopyButton />
 
-        <label>
-          X (width): <strong>{width}</strong>
-          <input
-            type="range"
-            min={MIN_SIZE}
-            max={MAX_SIZE}
-            value={width}
-            onChange={(e) => setWidth(Number(e.target.value))}
-          />
-        </label>
+      <div className="hud">
+        <strong>PongTrap Lab</strong>
+        <span>Height: {TANK_HEIGHT}</span>
+        <span>Triggered: {triggeredTotal}</span>
+      </div>
 
-        <label>
-          Y (depth): <strong>{depth}</strong>
-          <input
-            type="range"
-            min={MIN_SIZE}
-            max={MAX_SIZE}
-            value={depth}
-            onChange={(e) => setDepth(Number(e.target.value))}
-          />
-        </label>
-
-        <div className="meta">
-          <div>Height: {TANK_HEIGHT} (constant)</div>
-          <div>Triggered: {triggeredTotal}</div>
-        </div>
-
-        <div className="toggles">
-          <label>
-            <input
-              type="checkbox"
-              checked={postProcessing}
-              onChange={(e) => setPostProcessing(e.target.checked)}
-            />{' '}
-            Bloom
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={showStats}
-              onChange={(e) => setShowStats(e.target.checked)}
-            />{' '}
-            FPS stats
-          </label>
-        </div>
-
-        <button onClick={reset}>Reset simulation</button>
-      </aside>
-
-      <main className="viewport">
-        <Scene
-          width={width}
-          depth={depth}
-          triggeredMap={triggeredMap}
-          triggerCounts={triggerCounts}
-          onTrigger={triggerTrap}
-          postProcessing={postProcessing}
-          showStats={showStats}
-        />
-      </main>
+      <Scene
+        width={width}
+        depth={depth}
+        launchScale={launchScale}
+        triggeredMap={triggeredMap}
+        triggerCounts={triggerCounts}
+        onTrigger={triggerTrap}
+        postProcessing={postProcessing}
+        showStats={showStats}
+      />
     </div>
   );
 }

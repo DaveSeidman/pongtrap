@@ -46,6 +46,7 @@ function World({
   triggeredMap,
   triggerCounts,
   onTrigger,
+  launchScale = 0.1,
   postProcessing = true,
   showStats = false,
 }) {
@@ -118,6 +119,7 @@ function World({
             triggerCount={triggerCounts[trap.id] ?? 0}
             onTrigger={onTrigger}
             registerBallBody={registerBallBody}
+            launchScale={launchScale}
           />
         ))}
       </Physics>
