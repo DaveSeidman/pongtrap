@@ -91,7 +91,7 @@ function World({
   return (
     <>
       <color attach="background" args={['#07090d']} />
-      <fog attach="fog" args={['#07090d', 14, 34]} />
+      {/* fog removed per request */}
 
       <ambientLight intensity={0.25} />
       <directionalLight
