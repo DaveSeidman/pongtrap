@@ -14,7 +14,7 @@ export default function Tank({ width, depth }) {
   const baseOverhang = 1;
   const baseThickness = 0.8;
 
-  const woodTexture = useTexture('/wood-grain.svg');
+  const woodTexture = useTexture('wood-grain.svg');
   woodTexture.wrapS = THREE.RepeatWrapping;
   woodTexture.wrapT = THREE.RepeatWrapping;
   woodTexture.repeat.set(Math.max(2, width * 0.35), Math.max(2, depth * 0.35));
